@@ -25,6 +25,9 @@ const ItemCtrl = (function() {
     getItems: function() {
       return state.items;
     },
+    addItem: function(name, calories) {
+      console.log(name, calories);
+    },
     logState: function() {
       return state;
     }
@@ -36,8 +39,8 @@ const UICtrl = (function() {
   const UISelectors = {
     itemList: "#item-list",
     addBtn: ".add-btn",
-    itemName: "#item-name",
-    itemAmount: "#item-amount"
+    itemNameInput: "#item-name",
+    itemAmountInput: "#item-amount"
   };
 
   // public methods
@@ -56,33 +59,22 @@ const UICtrl = (function() {
       // insert list items
       document.querySelector(`${UISelectors.itemList}`).innerHTML = html;
     },
-    addItemToList: function() {
-      const item = document.querySelector(`${UISelectors.itemName}`);
-      const amount = document.querySelector(`${UISelectors.itemAmount}`);
-      // if input empty, add alert class
-      if (!item.value || !amount.value) {
-        item.classList.add("input-alert");
-        amount.classList.add("input-alert");
-        return;
-      }
-      //remove alert class
-      item.classList.remove("input-alert");
-      amount.classList.remove("input-alert");
-
-      let html = `<li class="collection-item" id="item${0}">
-      <strong>${item.value}: </strong> <em>¥${amount.value}</em>
-      <a href="#" class="secondary-content">
-        <i class="edit-item fa fa-pencil"></i>
-      </a>
-    </li>`;
-      // insert list items
-      document.querySelector(`${UISelectors.itemList}`).innerHTML += html;
-      // clear inputs
-      item.value = "";
-      amount.value = "";
+    getItemAndAmountInput: function() {
+      return {
+        name: document.querySelector(`${UISelectors.itemNameInput}`).value,
+        amount: document.querySelector(`${UISelectors.itemAmountInput}`).value
+      };
     },
     getSelectors: function() {
       return UISelectors;
+    },
+    showInputAlert: function() {
+      document
+        .querySelector(`${UISelectors.itemNameInput}`)
+        .classList.add("input-alert");
+      document
+        .querySelector(`${UISelectors.itemAmountInput}`)
+        .classList.add("input-alert");
     }
   };
 })();
@@ -91,12 +83,28 @@ const UICtrl = (function() {
 const App = (function(ItemCtrl, UICtrl, xxx) {
   // load event listeners
   function loadEventListeners() {
-    //get UI selectors
+    // get UI selectors
     const UISelectors = UICtrl.getSelectors();
+    // define event listeners
     document
       .querySelector(UISelectors.addBtn)
-      .addEventListener("click", UICtrl.addItemToList);
+      .addEventListener("click", addItemToList);
   }
+
+  // add item to list
+  const addItemToList = function(e) {
+    // get inputs
+    const input = UICtrl.getItemAndAmountInput();
+    // if input empty, add alert class
+    if (!input.name || !input.amount) {
+      UICtrl.showInputAlert();
+      return;
+    } else {
+      const newItem = ItemCtrl.addItem(input.name, input.amount);
+    }
+
+    e.preventDefault();
+  };
 
   // public methods
   return {
@@ -112,3 +120,29 @@ const App = (function(ItemCtrl, UICtrl, xxx) {
 })(ItemCtrl, UICtrl, xxx);
 
 App.init();
+
+// addItemToList: function() {
+//     const item = document.querySelector(`${UISelectors.itemName}`);
+//     const amount = document.querySelector(`${UISelectors.itemAmount}`);
+//     // if input empty, add alert class
+//     if (!item.value || !amount.value) {
+//       item.classList.add("input-alert");
+//       amount.classList.add("input-alert");
+//       return;
+//     }
+//     //remove alert class
+//     item.classList.remove("input-alert");
+//     amount.classList.remove("input-alert");
+
+//     let html = `<li class="collection-item" id="item${0}">
+//     <strong>${item.value}: </strong> <em>¥${amount.value}</em>
+//     <a href="#" class="secondary-content">
+//       <i class="edit-item fa fa-pencil"></i>
+//     </a>
+//   </li>`;
+//     // insert list items
+//     document.querySelector(`${UISelectors.itemList}`).innerHTML += html;
+//     // clear inputs
+//     item.value = "";
+//     amount.value = "";
+//   },
