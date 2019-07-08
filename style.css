@@ -1,0 +1,8 @@
+.input-alert {
+  border-bottom: orangered 1px solid !important;
+}
+
+.input-alert::placeholder {
+  color: orangered;
+  opacity: 1;
+}
