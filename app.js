@@ -75,9 +75,19 @@ const UICtrl = (function() {
               </a>
             </li>`;
       });
-
       // insert list items
       document.querySelector(`${UISelectors.itemList}`).innerHTML = html;
+    },
+    addListItem: function(item) {
+      // insert list items
+      document.querySelector(
+        `${UISelectors.itemList}`
+      ).innerHTML += `<li class="collection-item" id="item${item.id}">
+              <strong>${item.name}: </strong> <em>¥${item.amount}</em>
+              <a href="#" class="secondary-content">
+                <i class="edit-item fa fa-pencil"></i>
+              </a>
+            </li>`;
     },
     getItemAndAmountInput: function() {
       return {
@@ -142,7 +152,7 @@ const App = (function(ItemCtrl, UICtrl, xxx) {
     UICtrl.clearInputAlert();
     UICtrl.clearInputs();
     // add item to UI
-    UICtrl.addNewItem(newItem);
+    UICtrl.addListItem(newItem);
     e.preventDefault();
   };
 
