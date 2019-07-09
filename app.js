@@ -78,7 +78,7 @@ const UICtrl = (function() {
     populateItemList: function(items) {
       if (items.length > 0) {
         // show item list
-        this.showList();
+        UICtrl.showList();
       }
       let html = "";
       items.forEach(item => {
@@ -94,7 +94,7 @@ const UICtrl = (function() {
     },
     addListItem: function(item) {
       // show item list
-      this.showList();
+      UICtrl.showList();
       // insert list items
       document.querySelector(
         `${UISelectors.itemList}`
@@ -146,6 +146,9 @@ const UICtrl = (function() {
     clearInputs: function() {
       document.querySelector(`${UISelectors.itemNameInput}`).value = "";
       document.querySelector(`${UISelectors.itemAmountInput}`).value = "";
+    },
+    clearEditState: function() {
+      UICtrl.clearInputs();
     }
   };
 })();
