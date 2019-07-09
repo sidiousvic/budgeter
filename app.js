@@ -68,6 +68,7 @@ const UICtrl = (function() {
     getSelectors: function() {
       return UISelectors;
     },
+    // alert by coloring the input red
     showInputAlert: function() {
       document
         .querySelector(`${UISelectors.itemNameInput}`)
@@ -95,14 +96,14 @@ const App = (function(ItemCtrl, UICtrl, xxx) {
   const addItemToList = function(e) {
     // get inputs
     const input = UICtrl.getItemAndAmountInput();
-    // if input empty, add alert class
+    // if input empty show alert from UI controller
     if (!input.name || !input.amount) {
       UICtrl.showInputAlert();
+      e.preventDefault();
       return;
     } else {
       const newItem = ItemCtrl.addItem(input.name, input.amount);
     }
-
     e.preventDefault();
   };
 
