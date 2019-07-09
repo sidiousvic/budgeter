@@ -18,7 +18,7 @@ const ItemCtrl = (function() {
       { id: 1, name: "Insurance", amount: 25000 },
       { id: 2, name: "Rent", amount: 50000 }
     ],
-    currentItem: null,
+    editingItem: null,
     totalAmount: 0
   };
 
@@ -37,14 +37,19 @@ const ItemCtrl = (function() {
       }
       // parse amount to number type
       amount = parseInt(amount);
-
       // create new Item
       newItem = new Item(ID, name, amount);
-
       // add item to data array
       state.items.push(newItem);
-
       return newItem;
+    },
+    getItemByID: function(ID) {
+      let item = state.items.filter(a => a.id === ID);
+      console.log(item[0]);
+      return item[0];
+    },
+    setEditingItem: function(itemToEdit) {
+      state.editingItem = itemToEdit;
     },
     getTotalAmount: function() {
       let total = state.items.reduce((a, b) => {
@@ -68,6 +73,9 @@ const UICtrl = (function() {
   const UISelectors = {
     itemList: "#item-list",
     addBtn: ".add-btn",
+    updateBtn: ".update-btn",
+    deleteBtn: ".delete-btn",
+    backBtn: ".back-btn",
     itemNameInput: "#item-name",
     itemAmountInput: "#item-amount",
     totalAmount: ".total-amount"
@@ -82,7 +90,7 @@ const UICtrl = (function() {
       }
       let html = "";
       items.forEach(item => {
-        html += `<li class="collection-item" id="item${item.id}">
+        html += `<li class="collection-item" id="item-${item.id}">
               <strong>${item.name}: </strong> <em>¥${item.amount}</em>
               <a href="#" class="secondary-content">
                 <i class="edit-item fa fa-pencil"></i>
@@ -98,7 +106,7 @@ const UICtrl = (function() {
       // insert list items
       document.querySelector(
         `${UISelectors.itemList}`
-      ).innerHTML += `<li class="collection-item" id="item${item.id}">
+      ).innerHTML += `<li class="collection-item" id="item-${item.id}">
               <strong>${item.name}: </strong> <em>¥${item.amount}</em>
               <a href="#" class="secondary-content">
                 <i class="edit-item fa fa-pencil"></i>
@@ -147,8 +155,14 @@ const UICtrl = (function() {
       document.querySelector(`${UISelectors.itemNameInput}`).value = "";
       document.querySelector(`${UISelectors.itemAmountInput}`).value = "";
     },
-    clearEditState: function() {
+    setEditState: function() {
       UICtrl.clearInputs();
+
+      // clear edit statw
+      document.querySelector(`${UISelectors.updateBtn}`).style.display = "none";
+      document.querySelector(`${UISelectors.deleteBtn}`).style.display = "none";
+      document.querySelector(`${UISelectors.backBtn}`).style.display = "none";
+      document.querySelector(`${UISelectors.addBtn}`).style.display = "block";
     }
   };
 })();
@@ -165,7 +179,12 @@ const App = (function(ItemCtrl, UICtrl, xxx) {
     document
       .querySelector(UISelectors.addBtn)
       .addEventListener("click", addItemToList);
+    // edit item, click event
+    document
+      .querySelector(UISelectors.itemList)
+      .addEventListener("click", updateItem);
   };
+
   // add item to list
   const addItemToList = function(e) {
     // get inputs
@@ -191,9 +210,28 @@ const App = (function(ItemCtrl, UICtrl, xxx) {
     e.preventDefault();
   };
 
+  // update item
+  const updateItem = function(e) {
+    if (e.target.classList.contains("edit-item")) {
+      // get list item id (.item-#)
+      const listID = e.target.parentNode.parentNode.id;
+      // arrayize
+      const listIDArr = listID.split("-");
+      // get ID
+      const ID = parseInt(listIDArr[1]);
+      // get item data by ID
+      const itemToEdit = ItemCtrl.getItemByID(ID);
+      // set as editing item
+      ItemCtrl.setEditingItem(itemToEdit);
+    }
+    e.preventDefault();
+  };
+
   // public methods
   return {
     init: function() {
+      // clear edit state
+      UICtrl.setEditState();
       // fetch items from storage
       const items = ItemCtrl.getItems();
       // populate list with items
