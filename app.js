@@ -1,7 +1,9 @@
 // storage controller
 const xxx = (function() {})();
 
+////////////////////////////////////////////////////////////////
 // ITEM CONTROLLER
+////////////////////////////////////////////////////////////////
 const ItemCtrl = (function() {
   const Item = function(id, name, amount) {
     this.id = id;
@@ -25,8 +27,24 @@ const ItemCtrl = (function() {
     getItems: function() {
       return state.items;
     },
-    addItem: function(name, calories) {
-      console.log(name, calories);
+    addItem: function(name, amount) {
+      let ID;
+      // create ID
+      if (state.items.length > 0) {
+        ID = state.items[state.items.length - 1].id + 1;
+      } else {
+        ID = 0;
+      }
+      // parse amount to number type
+      amount = parseInt(amount);
+
+      // create new Item
+      newItem = new Item(ID, name, amount);
+
+      // add item to data array
+      state.items.push(newItem);
+
+      return newItem;
     },
     logState: function() {
       return state;
@@ -34,7 +52,9 @@ const ItemCtrl = (function() {
   };
 })();
 
+////////////////////////////////////////////////////////////////
 // UI CONTROLLER
+////////////////////////////////////////////////////////////////
 const UICtrl = (function() {
   const UISelectors = {
     itemList: "#item-list",
@@ -76,22 +96,37 @@ const UICtrl = (function() {
       document
         .querySelector(`${UISelectors.itemAmountInput}`)
         .classList.add("input-alert");
+    },
+    // clear input alert
+    clearInputAlert: function() {
+      document
+        .querySelector(`${UISelectors.itemNameInput}`)
+        .classList.remove("input-alert");
+      document
+        .querySelector(`${UISelectors.itemAmountInput}`)
+        .classList.remove("input-alert");
+    },
+    // clear the inputs
+    clearInputs: function() {
+      document.querySelector(`${UISelectors.itemNameInput}`).value = "";
+      document.querySelector(`${UISelectors.itemAmountInput}`).value = "";
     }
   };
 })();
 
+////////////////////////////////////////////////////////////////
 // APP CONTROLLER
+////////////////////////////////////////////////////////////////
 const App = (function(ItemCtrl, UICtrl, xxx) {
   // load event listeners
-  function loadEventListeners() {
+  const loadEventListeners = function() {
     // get UI selectors
     const UISelectors = UICtrl.getSelectors();
-    // define event listeners
+    // add button, click event
     document
       .querySelector(UISelectors.addBtn)
       .addEventListener("click", addItemToList);
-  }
-
+  };
   // add item to list
   const addItemToList = function(e) {
     // get inputs
@@ -101,9 +136,13 @@ const App = (function(ItemCtrl, UICtrl, xxx) {
       UICtrl.showInputAlert();
       e.preventDefault();
       return;
-    } else {
-      const newItem = ItemCtrl.addItem(input.name, input.amount);
     }
+    const newItem = ItemCtrl.addItem(input.name, input.amount);
+    // clear the inputs
+    UICtrl.clearInputAlert();
+    UICtrl.clearInputs();
+    // add item to UI
+    UICtrl.addNewItem(newItem);
     e.preventDefault();
   };
 
@@ -112,7 +151,7 @@ const App = (function(ItemCtrl, UICtrl, xxx) {
     init: function() {
       // fetch items from storage
       const items = ItemCtrl.getItems();
-      // pupulate list with items
+      // populate list with items
       UICtrl.populateItemList(items);
       // load event listeners
       loadEventListeners();
@@ -121,29 +160,3 @@ const App = (function(ItemCtrl, UICtrl, xxx) {
 })(ItemCtrl, UICtrl, xxx);
 
 App.init();
-
-// addItemToList: function() {
-//     const item = document.querySelector(`${UISelectors.itemName}`);
-//     const amount = document.querySelector(`${UISelectors.itemAmount}`);
-//     // if input empty, add alert class
-//     if (!item.value || !amount.value) {
-//       item.classList.add("input-alert");
-//       amount.classList.add("input-alert");
-//       return;
-//     }
-//     //remove alert class
-//     item.classList.remove("input-alert");
-//     amount.classList.remove("input-alert");
-
-//     let html = `<li class="collection-item" id="item${0}">
-//     <strong>${item.value}: </strong> <em>¥${amount.value}</em>
-//     <a href="#" class="secondary-content">
-//       <i class="edit-item fa fa-pencil"></i>
-//     </a>
-//   </li>`;
-//     // insert list items
-//     document.querySelector(`${UISelectors.itemList}`).innerHTML += html;
-//     // clear inputs
-//     item.value = "";
-//     amount.value = "";
-//   },
