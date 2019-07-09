@@ -14,9 +14,9 @@ const ItemCtrl = (function() {
   // state
   const state = {
     items: [
-      { id: 0, name: "Food", amount: "30000" },
-      { id: 1, name: "Insurance", amount: "25000" },
-      { id: 2, name: "Rent", amount: "50000" }
+      // { id: 0, name: "Food", amount: "30000" },
+      // { id: 1, name: "Insurance", amount: "25000" },
+      // { id: 2, name: "Rent", amount: "50000" }
     ],
     currentItem: null,
     totalAmount: 0
@@ -66,6 +66,10 @@ const UICtrl = (function() {
   // public methods
   return {
     populateItemList: function(items) {
+      if (items.length > 0) {
+        // show item list
+        this.showList();
+      }
       let html = "";
       items.forEach(item => {
         html += `<li class="collection-item" id="item${item.id}">
@@ -79,6 +83,8 @@ const UICtrl = (function() {
       document.querySelector(`${UISelectors.itemList}`).innerHTML = html;
     },
     addListItem: function(item) {
+      // show item list
+      this.showList();
       // insert list items
       document.querySelector(
         `${UISelectors.itemList}`
@@ -106,6 +112,9 @@ const UICtrl = (function() {
       document
         .querySelector(`${UISelectors.itemAmountInput}`)
         .classList.add("input-alert");
+    },
+    showList: function() {
+      document.querySelector(`${UISelectors.itemList}`).style.display = "block";
     },
     // clear input alert
     clearInputAlert: function() {
