@@ -10,3 +10,9 @@
 #item-list {
   display: none;
 }
+
+.total-amount,
+.total-currency-sign {
+  color: rgb(47, 199, 47);
+  font-weight: 900;
+}

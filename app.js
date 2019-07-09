@@ -14,9 +14,9 @@ const ItemCtrl = (function() {
   // state
   const state = {
     items: [
-      // { id: 0, name: "Food", amount: "30000" },
-      // { id: 1, name: "Insurance", amount: "25000" },
-      // { id: 2, name: "Rent", amount: "50000" }
+      { id: 0, name: "Food", amount: 30000 },
+      { id: 1, name: "Insurance", amount: 25000 },
+      { id: 2, name: "Rent", amount: 50000 }
     ],
     currentItem: null,
     totalAmount: 0
@@ -46,6 +46,15 @@ const ItemCtrl = (function() {
 
       return newItem;
     },
+    getTotalAmount: function() {
+      let total = state.items.reduce((a, b) => {
+        return a + b.amount;
+      }, 0);
+
+      state.totalAmount = total;
+
+      return state.totalAmount;
+    },
     logState: function() {
       return state;
     }
@@ -60,7 +69,8 @@ const UICtrl = (function() {
     itemList: "#item-list",
     addBtn: ".add-btn",
     itemNameInput: "#item-name",
-    itemAmountInput: "#item-amount"
+    itemAmountInput: "#item-amount",
+    totalAmount: ".total-amount"
   };
 
   // public methods
@@ -113,8 +123,15 @@ const UICtrl = (function() {
         .querySelector(`${UISelectors.itemAmountInput}`)
         .classList.add("input-alert");
     },
+    // show the item list
     showList: function() {
       document.querySelector(`${UISelectors.itemList}`).style.display = "block";
+    },
+    // show total amount
+    showTotalAmount: function(totalAmount) {
+      document.querySelector(
+        `${UISelectors.totalAmount}`
+      ).textContent = totalAmount;
     },
     // clear input alert
     clearInputAlert: function() {
@@ -157,6 +174,12 @@ const App = (function(ItemCtrl, UICtrl, xxx) {
       return;
     }
     const newItem = ItemCtrl.addItem(input.name, input.amount);
+
+    // get total amount
+    const totalAmount = ItemCtrl.getTotalAmount();
+    // show total amount in UI
+    UICtrl.showTotalAmount(totalAmount);
+
     // clear the inputs
     UICtrl.clearInputAlert();
     UICtrl.clearInputs();
@@ -172,6 +195,10 @@ const App = (function(ItemCtrl, UICtrl, xxx) {
       const items = ItemCtrl.getItems();
       // populate list with items
       UICtrl.populateItemList(items);
+      // get total amount
+      const totalAmount = ItemCtrl.getTotalAmount();
+      // show total amount in UI
+      UICtrl.showTotalAmount(totalAmount);
       // load event listeners
       loadEventListeners();
     }
