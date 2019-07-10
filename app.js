@@ -5,13 +5,13 @@ const xxx = (function() {})();
 // ITEM CONTROLLER
 ////////////////////////////////////////////////////////////////
 const ItemCtrl = (function() {
-  // constructor
+  // item constructor
   const Item = function(id, name, amount) {
     this.id = id;
     this.name = name;
     this.amount = amount;
   };
-  // state
+  // data state
   const state = {
     items: [
       { id: 0, name: "Food", amount: 25000 },
@@ -56,11 +56,8 @@ const ItemCtrl = (function() {
       return state.editingItem;
     },
     updateStateItem: function(id, input) {
-      // console.log(state.items[id].name);
-      // console.log(state.items[id].amount);
       state.items[id].name = input.name;
       state.items[id].amount = parseInt(input.amount);
-      // console.log(state.items);
     },
     getTotalAmount: function() {
       let total = state.items.reduce((a, b) => {
@@ -127,7 +124,6 @@ const UICtrl = (function() {
     },
     // update item on the list
     updateListItem: function(id, input) {
-      console.log(id, input, "new values");
       document.querySelector(`#item-${id}`).innerHTML = `
                 <a href="#" class="secondary-content">
                 <i class="edit-item fa fa-pencil"></i>
