@@ -291,6 +291,8 @@ const App = (function(ItemCtrl, UICtrl, xxx) {
     const totalAmount = ItemCtrl.getTotalAmount();
     // update total amount in UI
     UICtrl.showTotalAmount(totalAmount);
+    // set edit state
+    UICtrl.setEditState();
     e.preventDefault();
   };
 
