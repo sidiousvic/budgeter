@@ -59,6 +59,11 @@ const ItemCtrl = (function() {
       state.items[id].name = input.name;
       state.items[id].amount = parseInt(input.amount);
     },
+    deleteStateItem: function(id) {
+      console.log(state.items);
+      state.items = state.items.filter(item => item.id !== id);
+      console.log(state.items);
+    },
     getTotalAmount: function() {
       let total = state.items.reduce((a, b) => {
         return a + b.amount;
@@ -229,6 +234,10 @@ const App = (function(ItemCtrl, UICtrl, xxx) {
     document
       .querySelector(UISelectors.backBtn)
       .addEventListener("click", UICtrl.setEditState);
+    // delete button, click event
+    document
+      .querySelector(UISelectors.deleteBtn)
+      .addEventListener("click", deleteItemSubmit);
     // disable submit on enter
     document.addEventListener("keypress", function(e) {
       if (e.keycode === 13 || e.which === 13) {
@@ -287,6 +296,22 @@ const App = (function(ItemCtrl, UICtrl, xxx) {
     ItemCtrl.updateStateItem(id, input);
     // update item in UI list
     UICtrl.updateListItem(id, input);
+    // get total amount
+    const totalAmount = ItemCtrl.getTotalAmount();
+    // update total amount in UI
+    UICtrl.showTotalAmount(totalAmount);
+    // set edit state
+    UICtrl.setEditState();
+    e.preventDefault();
+  };
+  // delete item
+  const deleteItemSubmit = function(e) {
+    // get editing item data
+    const id = ItemCtrl.getEditingItem().id;
+    // delete item in state
+    ItemCtrl.deleteStateItem(id);
+    // delete item in UI list
+    // UICtrl.deleteListItem(id);
     // get total amount
     const totalAmount = ItemCtrl.getTotalAmount();
     // update total amount in UI
