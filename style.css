@@ -16,3 +16,13 @@
   color: rgb(47, 199, 47);
   font-weight: 900;
 }
+
+.add-btn {
+  display: inline;
+}
+
+.delete-btn,
+.update-btn,
+.back-btn {
+  display: none;
+}

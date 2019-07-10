@@ -5,51 +5,62 @@ const xxx = (function() {})();
 // ITEM CONTROLLER
 ////////////////////////////////////////////////////////////////
 const ItemCtrl = (function() {
+  // constructor
   const Item = function(id, name, amount) {
     this.id = id;
     this.name = name;
     this.amount = amount;
   };
-
   // state
   const state = {
     items: [
-      { id: 0, name: "Food", amount: 30000 },
+      { id: 0, name: "Food", amount: 25000 },
       { id: 1, name: "Insurance", amount: 25000 },
-      { id: 2, name: "Rent", amount: 50000 }
+      { id: 2, name: "Rent", amount: 45000 },
+      { id: 3, name: "Other", amount: 5000 }
     ],
     editingItem: null,
     totalAmount: 0
   };
 
-  // public methods
   return {
     getItems: function() {
       return state.items;
     },
     addItem: function(name, amount) {
-      let ID;
-      // create ID
+      let id;
+      // create id
       if (state.items.length > 0) {
-        ID = state.items[state.items.length - 1].id + 1;
+        id = state.items[state.items.length - 1].id + 1;
       } else {
-        ID = 0;
+        id = 0;
       }
       // parse amount to number type
       amount = parseInt(amount);
       // create new Item
-      newItem = new Item(ID, name, amount);
+      newItem = new Item(id, name, amount);
       // add item to data array
       state.items.push(newItem);
       return newItem;
     },
-    getItemByID: function(ID) {
-      let item = state.items.filter(a => a.id === ID);
-      console.log(item[0]);
+    getItemById: function(id) {
+      // filter items array by id
+      let item = state.items.filter(a => a.id === id);
+      // return item object
       return item[0];
     },
     setEditingItem: function(itemToEdit) {
       state.editingItem = itemToEdit;
+    },
+    getEditingItem: function() {
+      return state.editingItem;
+    },
+    updateStateItem: function(id, input) {
+      // console.log(state.items[id].name);
+      // console.log(state.items[id].amount);
+      state.items[id].name = input.name;
+      state.items[id].amount = parseInt(input.amount);
+      // console.log(state.items);
     },
     getTotalAmount: function() {
       let total = state.items.reduce((a, b) => {
@@ -81,8 +92,8 @@ const UICtrl = (function() {
     totalAmount: ".total-amount"
   };
 
-  // public methods
   return {
+    // populate list from state in storage
     populateItemList: function(items) {
       if (items.length > 0) {
         // show item list
@@ -100,6 +111,7 @@ const UICtrl = (function() {
       // insert list items
       document.querySelector(`${UISelectors.itemList}`).innerHTML = html;
     },
+    // add an item to list
     addListItem: function(item) {
       // show item list
       UICtrl.showList();
@@ -113,12 +125,23 @@ const UICtrl = (function() {
               </a>
             </li>`;
     },
+    // update item on the list
+    updateListItem: function(id, input) {
+      console.log(id, input, "new values");
+      document.querySelector(`#item-${id}`).innerHTML = `
+                <a href="#" class="secondary-content">
+                <i class="edit-item fa fa-pencil"></i>
+                </a><strong>${input.name}: </strong> <em>¥${input.amount}</em>
+              `;
+    },
+    // get the item input values
     getItemAndAmountInput: function() {
       return {
         name: document.querySelector(`${UISelectors.itemNameInput}`).value,
         amount: document.querySelector(`${UISelectors.itemAmountInput}`).value
       };
     },
+    // get the UI selectors
     getSelectors: function() {
       return UISelectors;
     },
@@ -155,14 +178,33 @@ const UICtrl = (function() {
       document.querySelector(`${UISelectors.itemNameInput}`).value = "";
       document.querySelector(`${UISelectors.itemAmountInput}`).value = "";
     },
+    // reset edit item buttons on UI
     setEditState: function() {
       UICtrl.clearInputs();
-
-      // clear edit statw
+      // clear edit state
       document.querySelector(`${UISelectors.updateBtn}`).style.display = "none";
       document.querySelector(`${UISelectors.deleteBtn}`).style.display = "none";
       document.querySelector(`${UISelectors.backBtn}`).style.display = "none";
       document.querySelector(`${UISelectors.addBtn}`).style.display = "block";
+    },
+    // show edit item buttons on UI
+    showEditState: function() {
+      document.querySelector(`${UISelectors.updateBtn}`).style.display =
+        "inline";
+      document.querySelector(`${UISelectors.deleteBtn}`).style.display =
+        "inline";
+      document.querySelector(`${UISelectors.backBtn}`).style.display = "inline";
+      document.querySelector(`${UISelectors.addBtn}`).style.display = "none";
+    },
+    // add item values to the edit form
+    addItemToForm: function() {
+      document.querySelector(
+        `${UISelectors.itemNameInput}`
+      ).value = ItemCtrl.getEditingItem().name;
+      document.querySelector(
+        `${UISelectors.itemAmountInput}`
+      ).value = ItemCtrl.getEditingItem().amount;
+      UICtrl.showEditState();
     }
   };
 })();
@@ -182,9 +224,19 @@ const App = (function(ItemCtrl, UICtrl, xxx) {
     // edit item, click event
     document
       .querySelector(UISelectors.itemList)
-      .addEventListener("click", updateItem);
+      .addEventListener("click", editItem);
+    // update item, click event
+    document
+      .querySelector(UISelectors.updateBtn)
+      .addEventListener("click", editItemSubmit);
+    // disable submit on enter
+    document.addEventListener("keypress", function(e) {
+      if (e.keycode === 13 || e.which === 13) {
+        e.preventDefault();
+        return false;
+      }
+    });
   };
-
   // add item to list
   const addItemToList = function(e) {
     // get inputs
@@ -195,13 +247,12 @@ const App = (function(ItemCtrl, UICtrl, xxx) {
       e.preventDefault();
       return;
     }
+    // add item to state
     const newItem = ItemCtrl.addItem(input.name, input.amount);
-
     // get total amount
     const totalAmount = ItemCtrl.getTotalAmount();
     // show total amount in UI
     UICtrl.showTotalAmount(totalAmount);
-
     // clear the inputs
     UICtrl.clearInputAlert();
     UICtrl.clearInputs();
@@ -209,26 +260,42 @@ const App = (function(ItemCtrl, UICtrl, xxx) {
     UICtrl.addListItem(newItem);
     e.preventDefault();
   };
-
-  // update item
-  const updateItem = function(e) {
+  // edit item
+  const editItem = function(e) {
     if (e.target.classList.contains("edit-item")) {
       // get list item id (.item-#)
-      const listID = e.target.parentNode.parentNode.id;
+      const listId = e.target.parentNode.parentNode.id;
       // arrayize
-      const listIDArr = listID.split("-");
-      // get ID
-      const ID = parseInt(listIDArr[1]);
-      // get item data by ID
-      const itemToEdit = ItemCtrl.getItemByID(ID);
+      const listIdArr = listId.split("-");
+      // get id
+      const id = parseInt(listIdArr[1]);
+      // get item data by id
+      const itemToEdit = ItemCtrl.getItemById(id);
       // set as editing item
       ItemCtrl.setEditingItem(itemToEdit);
+      // add item to form
+      UICtrl.addItemToForm();
     }
     e.preventDefault();
   };
+  // submit edited item
+  const editItemSubmit = function(e) {
+    // get editing item data
+    const id = ItemCtrl.getEditingItem().id;
+    const input = UICtrl.getItemAndAmountInput();
+    // update item in state
+    ItemCtrl.updateStateItem(id, input);
+    // update item in UI list
+    UICtrl.updateListItem(id, input);
+    // get total amount
+    const totalAmount = ItemCtrl.getTotalAmount();
+    // update total amount in UI
+    UICtrl.showTotalAmount(totalAmount);
+    e.preventDefault();
+  };
 
-  // public methods
   return {
+    // initialize app
     init: function() {
       // clear edit state
       UICtrl.setEditState();
