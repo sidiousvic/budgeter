@@ -60,9 +60,7 @@ const ItemCtrl = (function() {
       state.items[id].amount = parseInt(input.amount);
     },
     deleteStateItem: function(id) {
-      console.log(state.items);
       state.items = state.items.filter(item => item.id !== id);
-      console.log(state.items);
     },
     getTotalAmount: function() {
       let total = state.items.reduce((a, b) => {
@@ -197,6 +195,10 @@ const UICtrl = (function() {
       document.querySelector(`${UISelectors.backBtn}`).style.display = "inline";
       document.querySelector(`${UISelectors.addBtn}`).style.display = "none";
     },
+    // deleete item from list on UI
+    deleteListItem: function(id) {
+      document.querySelector(`#item-${id}`).remove();
+    },
     // add item values to the edit form
     addItemToForm: function() {
       document.querySelector(
@@ -311,7 +313,7 @@ const App = (function(ItemCtrl, UICtrl, xxx) {
     // delete item in state
     ItemCtrl.deleteStateItem(id);
     // delete item in UI list
-    // UICtrl.deleteListItem(id);
+    UICtrl.deleteListItem(id);
     // get total amount
     const totalAmount = ItemCtrl.getTotalAmount();
     // update total amount in UI
