@@ -26,7 +26,6 @@ const StorageCtrl = (function() {
       return JSON.parse(localStorage.getItem("items"));
     },
     updateItemInStorage: function(updatedItem) {
-      console.log("update", updatedItem);
       let items = JSON.parse(localStorage.getItem("items"));
       items.forEach((item, index) => {
         if (updatedItem.id === item.id) {
