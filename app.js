@@ -1,5 +1,47 @@
 // storage controller
-const xxx = (function() {})();
+const StorageCtrl = (function() {
+  return {
+    storeItem: function(item) {
+      let items = [];
+      // check if item is in local storage
+      if (localStorage.getItem("items") === null) {
+        items = [];
+        // push item
+        items.push(item);
+        // set in local storage parsed as string
+        localStorage.setItem("items", JSON.stringify(items));
+      } else {
+        // get items parsed as JSON
+        items = JSON.parse(localStorage.getItem("items"));
+        items.push(item);
+        // set in local storage parsed as string
+        localStorage.setItem("items", JSON.stringify(items));
+      }
+    },
+    getItemsFromStorage: function() {
+      let items;
+      if (localStorage.getItem("items") === null) {
+        items = [];
+      }
+      return JSON.parse(localStorage.getItem("items"));
+    },
+    updateItemInStorage: function(updatedItem) {
+      console.log("update", updatedItem);
+      let items = JSON.parse(localStorage.getItem("items"));
+      items.forEach((item, index) => {
+        if (updatedItem.id === item.id) {
+          items.splice(index, 1, updatedItem);
+        }
+      });
+      localStorage.setItem("items", JSON.stringify(items));
+    },
+    deleteItemFromStorage: function(deletedItemId) {
+      let items = JSON.parse(localStorage.getItem("items"));
+      items = items.filter(item => deletedItemId !== item.id);
+      localStorage.setItem("items", JSON.stringify(items));
+    }
+  };
+})();
 
 ////////////////////////////////////////////////////////////////
 // ITEM CONTROLLER
@@ -13,12 +55,7 @@ const ItemCtrl = (function() {
   };
   // data state
   const state = {
-    items: [
-      { id: 0, name: "Food", amount: 25000 },
-      { id: 1, name: "Insurance", amount: 25000 },
-      { id: 2, name: "Rent", amount: 45000 },
-      { id: 3, name: "Other", amount: 5000 }
-    ],
+    items: StorageCtrl.getItemsFromStorage() || [],
     editingItem: null,
     totalAmount: 0
   };
@@ -72,6 +109,7 @@ const ItemCtrl = (function() {
       return state.totalAmount;
     },
     logState: function() {
+      console.log(state);
       return state;
     }
   };
@@ -195,7 +233,7 @@ const UICtrl = (function() {
       document.querySelector(`${UISelectors.backBtn}`).style.display = "inline";
       document.querySelector(`${UISelectors.addBtn}`).style.display = "none";
     },
-    // deleete item from list on UI
+    // delete item from list on UI
     deleteListItem: function(id) {
       document.querySelector(`#item-${id}`).remove();
     },
@@ -215,7 +253,7 @@ const UICtrl = (function() {
 ////////////////////////////////////////////////////////////////
 // APP CONTROLLER
 ////////////////////////////////////////////////////////////////
-const App = (function(ItemCtrl, UICtrl, xxx) {
+const App = (function(ItemCtrl, UICtrl, StorageCtrl) {
   // load event listeners
   const loadEventListeners = function() {
     // get UI selectors
@@ -269,6 +307,8 @@ const App = (function(ItemCtrl, UICtrl, xxx) {
     UICtrl.clearInputs();
     // add item to UI
     UICtrl.addListItem(newItem);
+    // add item to local storage
+    StorageCtrl.storeItem(newItem);
     e.preventDefault();
   };
   // edit item
@@ -292,34 +332,43 @@ const App = (function(ItemCtrl, UICtrl, xxx) {
   // submit edited item
   const editItemSubmit = function(e) {
     // get editing item data
-    const id = ItemCtrl.getEditingItem().id;
+    const item = ItemCtrl.getEditingItem();
+    const itemId = ItemCtrl.getEditingItem().id;
     const input = UICtrl.getItemAndAmountInput();
     // update item in state
-    ItemCtrl.updateStateItem(id, input);
+    ItemCtrl.updateStateItem(itemId, input);
     // update item in UI list
-    UICtrl.updateListItem(id, input);
+    UICtrl.updateListItem(itemId, input);
     // get total amount
     const totalAmount = ItemCtrl.getTotalAmount();
     // update total amount in UI
     UICtrl.showTotalAmount(totalAmount);
     // set edit state
     UICtrl.setEditState();
+    // update item in local storage
+    StorageCtrl.updateItemInStorage(item);
+    // log state in console
+    ItemCtrl.logState();
     e.preventDefault();
   };
   // delete item
   const deleteItemSubmit = function(e) {
     // get editing item data
-    const id = ItemCtrl.getEditingItem().id;
+    const itemId = ItemCtrl.getEditingItem().id;
     // delete item in state
-    ItemCtrl.deleteStateItem(id);
+    ItemCtrl.deleteStateItem(itemId);
     // delete item in UI list
-    UICtrl.deleteListItem(id);
+    UICtrl.deleteListItem(itemId);
     // get total amount
     const totalAmount = ItemCtrl.getTotalAmount();
     // update total amount in UI
     UICtrl.showTotalAmount(totalAmount);
     // set edit state
     UICtrl.setEditState();
+    // delete item in local storage
+    StorageCtrl.deleteItemFromStorage(itemId);
+    // log state in console
+    ItemCtrl.logState();
     e.preventDefault();
   };
 
@@ -332,6 +381,8 @@ const App = (function(ItemCtrl, UICtrl, xxx) {
       const items = ItemCtrl.getItems();
       // populate list with items
       UICtrl.populateItemList(items);
+      // log state in console
+      ItemCtrl.logState();
       // get total amount
       const totalAmount = ItemCtrl.getTotalAmount();
       // show total amount in UI
@@ -340,6 +391,6 @@ const App = (function(ItemCtrl, UICtrl, xxx) {
       loadEventListeners();
     }
   };
-})(ItemCtrl, UICtrl, xxx);
+})(ItemCtrl, UICtrl, StorageCtrl);
 
 App.init();
