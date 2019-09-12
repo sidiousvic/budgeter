@@ -2,4 +2,4 @@
 
 A monthly budgeting app. 💵
 
-@sidiousvic
+🤑 sidiousvic
